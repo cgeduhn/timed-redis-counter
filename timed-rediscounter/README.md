@@ -26,7 +26,7 @@ Or install it yourself as:
 class TestObject
   include Timed::Rediscounter
 
-  #class neeeds an id 
+  #class neeeds an id or another id field => see below
   def id 
     1
   end
@@ -37,7 +37,8 @@ class TestObject
   # valid periods are [:minute, :hour,   :day,     :month,  :year]
   timed_rediscounter(:test2,periods: [:hour,:day])
 
-  # you can pass a 
+  # you can pass a other id field
+  timed_rediscounter(:test2,id_field: :special_id_field)
 
 end
 
