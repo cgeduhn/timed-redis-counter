@@ -12,7 +12,7 @@ module Timed
         @default_options = default_options.to_h
       end
 
-      # Increments all given periodkeys by a given offset
+      # Increments all given period keys by a given offset
       # offset is normally 1
       # 
       def incr(options={})
@@ -81,9 +81,9 @@ module Timed
 
       #build the hash keys for a period and a range
       def hash_keys_for_range(period,range)
-        raise_if_not_valid_periods([period]) 
+        raise_if_not_valid_periods(period) 
         ts_array = Set.new
-        Timed::Rediscounter::TimeHelper.for_each(period,s..e).each do |t|
+        Timed::Rediscounter::TimeHelper.for_each(period,range).each do |t|
           ts_array << convert_time_to_period_hash_key(t,period)  
         end
         ts_array.to_a
@@ -125,7 +125,7 @@ module Timed
         "#{self.class.name}::#{@key}::#{period}"
       end
 
-      def convert_to_time(time)
+      def convert_time_to_period_hash_key(time,period)
         case time
         when Time
           time = time.utc
@@ -138,10 +138,7 @@ module Timed
         else 
           raise ArgumentError.new("Not valid Time")
         end
-      end
-
-      def convert_time_to_period_hash_key(time,period)
-        convert_to_time(time).send("beginning_of_#{period}").to_i
+        time.send("beginning_of_#{period}").to_i
       end
 
 
