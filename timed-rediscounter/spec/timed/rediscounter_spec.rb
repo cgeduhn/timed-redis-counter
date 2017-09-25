@@ -10,6 +10,12 @@ class TestObject
 
   timed_rediscounter(:standard)
 
+
+  master_host = "localhost"
+  redis_db = 2
+  master_port = 6379
+  timed_rediscounter(:with_other_redis, redis: Redis.new(:host => master_host, :port => master_port, :db => redis_db))
+
 end
 
 
@@ -18,8 +24,11 @@ RSpec.describe Timed::Rediscounter do
   let (:standard_counter) { TestObject.new.standard }
 
 
-  it "has a redis" do 
-     expect(Timed::Rediscounter.redis).to be_kind_of(Redis)
+  it "has redis instances" do 
+    expect(TestObject.new.standard.redis).to be_kind_of(Redis)
+    expect(TestObject.new.with_other_redis.redis).to be_kind_of(Redis)
+    #expect(TestObject.new.standard.redis.client.db).to eq(1)
+    #expect(TestObject.new.with_other_redis.redis.client.db).to eq(2)
   end
 
 
