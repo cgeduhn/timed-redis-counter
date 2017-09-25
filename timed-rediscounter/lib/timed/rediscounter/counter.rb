@@ -1,10 +1,8 @@
-require "timed/rediscounter/time_helper"
-
 module Timed
   module Rediscounter
     class Counter
 
-      Steps   = [1.hour,  1.day,   4.weeks,  1.year,  2.year].freeze
+      Steps   = [1.hour,  1.day,   1.month,  1.year,  2.year].freeze
       Periods = [:minute, :hour,   :day,     :month,  :year].freeze
       DefaultPeriods = Periods
 
@@ -49,9 +47,9 @@ module Timed
       # optional Parameter period: 
       # [:minute, :hour,   :day,     :month,  :year]
       def timehash(range,period=nil)
-        period ||= period_by_range(range)
 
-        ts_array = hash_keys_for_range(period,range)
+        period ||= period_by_range(range)
+        ts_array = hash_keys_by_range(period,range)
         return Hash.new if ts_array.empty?
 
         redis.mapped_hmget(period_key(period), *ts_array).inject({}) do |h,(k,v)| 
@@ -85,13 +83,21 @@ module Timed
       private
 
       #build the hash keys for a period and a range
-      def hash_keys_for_range(period,range)
+      def hash_keys_by_range(period,range)
         raise_if_not_valid_periods(period) 
+
+        off_set = 1.send(period)
         ts_array = Set.new
-        Timed::Rediscounter::TimeHelper.for_each(period,range).each do |t|
-          ts_array << convert_time_to_period_hash_key(t,period)  
+
+        start_time = range.first.send("beginning_of_#{period}")
+        end_time = range.last.send("beginning_of_#{period}")
+
+        ts_array << start_time
+        while (end_time - start_time) >= off_set
+          start_time += off_set
+          ts_array << start_time
         end
-        ts_array.to_a
+        return ts_array.collect(&:to_i)
       end
 
       # Calculate a a valid period by a given range
@@ -128,17 +134,17 @@ module Timed
       def convert_time_to_period_hash_key(time,period)
         case time
         when Time
-          time = time.utc
+          t = time
         when Date
-          time = time.to_time.utc
+          t = time.to_time
         when String
-          time = Time.parse(time).utc
+          t = Time.parse(time)
         when Fixnum,Float
-          time = Time.at(time).utc
+          t = Time.at(time)
         else 
           raise ArgumentError.new("Not valid Time")
         end
-        time.send("beginning_of_#{period}").to_i
+        t.send("beginning_of_#{period}").to_i
       end
 
 
