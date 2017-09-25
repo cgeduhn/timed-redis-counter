@@ -89,7 +89,7 @@ module Timed
         periods = (opt[:periods] || @periods)
         raise_if_not_valid_periods(periods)
 
-        if offset > 0
+        if offset != 0
           return redis.multi do
             periods.each do  |period| 
               redis.hincrby( period_key(period), convert_time_to_period_hash_key(time,period),  offset)
