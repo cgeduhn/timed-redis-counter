@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Christopher Geduhn"]
   spec.email         = ["christopher.geduhn@googlemail.com"]
 
-  spec.summary       = %q{}
-  spec.description   = %q{.}
+  spec.summary       = %q{A timed counter based on redis hashes}
+  spec.description   = %q{A timed counter based on redis hashes}
   spec.homepage      = "https://github.com/cgeduhn/timed-rediscounter/wiki"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
