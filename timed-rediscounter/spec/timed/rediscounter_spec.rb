@@ -1,9 +1,21 @@
 require "spec_helper"
 
+class TestObject
+  include Timed::Rediscounter
+
+  #class neeeds an id or another id field => see below
+  def id 
+    1
+  end
+
+  timed_rediscounter(:standard)
+
+end
+
 
 RSpec.describe Timed::Rediscounter do
 
-  let (:standard_counter) { Timed::Rediscounter::Counter.new("standard") }
+  let (:standard_counter) { TestObject.new.standard }
 
 
   it "has a redis" do 
