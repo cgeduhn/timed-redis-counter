@@ -1,5 +1,15 @@
+require 'active_support'
+require 'active_support/time'
+
+require 'active_support/core_ext/date/conversions'
+require 'active_support/core_ext/hash'
+
+require "redis"
+
 require "timed/rediscounter/version"
 require "timed/rediscounter/counter"
+
+
 
 module Timed
   module Rediscounter

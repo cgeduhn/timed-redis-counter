@@ -3,6 +3,11 @@ require "timed/rediscounter/time_helper"
 module Timed
   module Rediscounter
     class Counter
+
+      Steps   = [1.hour,  1.day,   4.weeks,  1.year,  2.year].freeze
+      Periods = [:minute, :hour,   :day,     :month,  :year].freeze
+      DefaultPeriods = Periods
+
       attr_reader :steps,:periods,:key
       def initialize(key,default_options={})
         @key = key
@@ -19,7 +24,7 @@ module Timed
         opt = @default_options.merge(options).with_indifferent_access
         offset = opt.fetch(:offset,1).to_i
         time = opt.fetch(:time,Time.current)
-        periods = opt[:periods]
+        periods = (opt[:periods] || @periods)
         raise_if_not_valid_periods(periods)
 
         if offset > 0
@@ -30,7 +35,7 @@ module Timed
           end
         end
 
-        return nil
+        return []
       end
 
       # Returns a Hash by a given range or a period
@@ -92,7 +97,7 @@ module Timed
       # Calculate a a valid period by a given range
       def period_by_range(range)
         diff = (range.last - range.first).round
-        #finding the first step thats less or equal the range difference
+        period = nil
         @steps.each_with_index do |step,i|
           if diff <= step
             period = @periods[i] 
@@ -106,7 +111,7 @@ module Timed
       def raise_if_not_valid_periods(a)
         r = case a 
         when Array
-          return (!a.any?{|it| !Periods.include?(it.to_sym)})
+          return !a.any?{|it| !Periods.include?(it.to_sym)}
         when Symbol,String
           return Periods.include?(a.to_sym)
         else
@@ -114,11 +119,6 @@ module Timed
         end
         raise ArgumentError.new("Not valid periods: #{a} Must contain one or more of #{Periods}") unless r
       end
-
-
-      Steps   = [1.hour,  1.day,   4.weeks,  1.year,  2.year].freeze
-      Periods = [:minute, :hour,   :day,     :month,  :year].freeze
-      DefaultPeriods = Periods
 
 
       def period_key(period)
