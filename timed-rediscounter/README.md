@@ -26,20 +26,34 @@ Or install it yourself as:
 class TestObject
   include Timed::Rediscounter
 
-  # Define like: 
-  #
-  # timed_rediscounter(:test1)
+  #class neeeds an id 
+  def id 
+    1
+  end
+
+  # Define a counter like: 
+  timed_rediscounter(:test1)
   # only a counter for hours and days
   # valid periods are [:minute, :hour,   :day,     :month,  :year]
-  # timed_rediscounter(:test2,periods: [:hour,:day])
+  timed_rediscounter(:test2,periods: [:hour,:day])
 
-  #incrementation
+  # you can pass a 
 
 end
 
-#incrementation
-
+##Incrementation
 obj.test1.incr()
+#if you want to incrment by a value bigger than 1
+obj.test1.incr(offset: 10)
+#if you want to increment for a specific timestamp
+obj.test1.incr(time: 10.years.ago)
+#if you want to increment for a specific timestamp
+obj.test1.incr(time: 10.years.ago)
+#if you only want to increment specific for specific periods
+obj.test1.incr(periods: [:year])
+
+
+##Results
 
 #return a timestamp hash with timestamp as key and count as value
 obj.history(1.minute.ago)
