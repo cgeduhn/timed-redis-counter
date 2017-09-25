@@ -7,7 +7,7 @@ require 'active_support/core_ext/hash'
 require "redis"
 
 require "timed/rediscounter/version"
-require "timed/rediscounter/counter"
+require "timed/counter"
 
 
 
