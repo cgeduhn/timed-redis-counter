@@ -55,6 +55,12 @@ obj.test1.incr(periods: [:year])
 #return a timestamp hash with timestamp as key and count as value
 obj.test1.history(1.minute.ago)
 
+
+#optional with step as second argument. 
+#normally the step will be the steps in the hash by the given range
+obj.test1.history(1.year.ago,:minute) 
+
+
 #returns the sum in the given range
 obj.test1.sum(1.minute.ago..Time.now) #or obj.sum(1.minute.ago)
 
