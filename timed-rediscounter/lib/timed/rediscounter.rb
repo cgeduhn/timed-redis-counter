@@ -58,7 +58,7 @@ module Timed
           if instance_variable_get(obj_v_string)
             instance_variable_get(obj_v_string)
           else
-            o = Timed::Rediscounter::Counter.new([key_name,send(id_field)].join("::"),options)
+            o = Timed::Rediscounter::Counter.new([key_name,self.class.name,send(id_field)].join("::"),options)
             instance_variable_set(obj_v_string, o)
           end
         end
