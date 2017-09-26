@@ -46,8 +46,6 @@ obj.test1.incr()
 obj.test1.incr(offset: 10)
 #if you want to increment for a specific timestamp
 obj.test1.incr(time: 10.years.ago)
-#if you want to increment for a specific timestamp
-obj.test1.incr(time: 10.years.ago)
 #if you only want to increment for specific periods
 obj.test1.incr(periods: [:year])
 
