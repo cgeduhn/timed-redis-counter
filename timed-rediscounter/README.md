@@ -57,7 +57,7 @@ obj.test1.history(1.minute.ago)
 
 
 #optional with step as second argument. 
-#normally the step will be the steps in the hash by the given range
+#normally the step will be calculated by given range
 obj.test1.history(1.year.ago,:minute) 
 
 
