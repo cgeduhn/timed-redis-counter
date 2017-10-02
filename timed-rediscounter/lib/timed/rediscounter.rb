@@ -70,13 +70,15 @@ module Timed
 
       Periods = [:minute, :hour,   :day,     :month,  :year].freeze
 
-      attr_reader :periods,:key
+      attr_reader :periods,:key,:expires_in
+
       def initialize(key,default_options={})
         @key = key
         @periods = (default_options.delete(:periods) || Periods)
         @redis = (default_options.delete(:redis) || Timed::Rediscounter.redis)
         raise_if_not_valid_periods(@periods)
         @default_options = default_options.to_h
+        @expires_in = @default_options.fetch(:expires_in, 2.year.to_i)
       end
 
       # Increments all given period keys by a given offset
@@ -89,15 +91,20 @@ module Timed
         periods = (opt[:periods] || @periods)
         raise_if_not_valid_periods(periods)
 
+        result = []
         if offset != 0
-          return redis.multi do
+
+          redis.multi do
             periods.each do  |period| 
-              redis.hincrby( period_key(period), convert_time_to_period_hash_key(time,period),  offset)
+              p_key = period_key(period)
+              result << (redis.hincrby p_key, convert_time_to_period_hash_key(time,period),  offset)
+              redis.expire  p_key, @expires_in if @expires_in 
             end
           end
+
         end
 
-        return []
+        return result.collect(&:value)
       end
 
       # Returns a Hash by a given range or a period
@@ -121,6 +128,17 @@ module Timed
         end
       end
 
+      def summed_up_history(range_arg,period=nil)
+        redis_key, hash_keys =  build_redishash_arguments(range_arg,period)
+        h = {}
+        return h if hash_keys.empty?
+        redis.mapped_hmget(redis_key, *hash_keys).inject(0) do |s,(k,v)| 
+          h[Time.at(k)] = (s += v.to_i)
+          s
+        end
+        return h
+      end
+
       def sum(range_arg,period=nil)
         redis_key, hash_keys =  build_redishash_arguments(range_arg,period)
         return 0 if hash_keys.empty?
@@ -130,8 +148,7 @@ module Timed
       #Expiring all period Keys
       #
       #expire_in in seconds
-      def expire_keys(expire_in=nil)
-        expire_in ||= @default_options.fetch(:expire_in, 1.year).to_i
+      def expire_keys(expire_in=@expires_in)
         redis.multi do 
           Periods.each { |period| redis.expire period_key(period), expire_in }
         end
@@ -155,7 +172,7 @@ module Timed
       def build_redishash_arguments(range_arg,period=nil)
         case range_arg 
         when Time,Date
-          range = (range_arg..Time.current)
+          range = (range_arg.to_time..Time.current)
         when String
           range = (Time.parse(range_arg)..Time.current)
         when Range

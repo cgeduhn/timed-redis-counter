@@ -19,6 +19,13 @@ class TestObject
 end
 
 
+class Array
+  def sum
+    inject(0){|s,elem| s += elem.to_i}
+  end
+end
+
+
 RSpec.describe Timed::Rediscounter do
 
   let (:standard_counter) { TestObject.new.standard }
@@ -65,7 +72,7 @@ RSpec.describe Timed::Rediscounter do
           expect(h.keys.length).to eq(25)
           expect(h.values.inject(0) { |sum, p| sum + p }).to eq(1)
         when :month
-          expect(h.keys.length).to eq(2)
+          expect(h.keys.length).to be >= 30
           expect(h.values.inject(0) { |sum, p| sum + p }).to eq(1)
         when :year
           expect(h.keys.length).to eq(2)
@@ -73,6 +80,19 @@ RSpec.describe Timed::Rediscounter do
         end
         #expect(h.values.inject(0) { |sum, p| sum + p }).to eq(1)
       end
+
+      standard_counter.incr()
+
+      r = 1.minute.ago..Time.current
+      expect(standard_counter.sum(r)).to eq(2)
+
+      expect(standard_counter.history(r).values.sum).to eq(2)
+
+
+      expect(standard_counter.summed_up_history(r).values.last).to eq(2) #ist ja aufsummiert
+
+
+
 
     end
 
