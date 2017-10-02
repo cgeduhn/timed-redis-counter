@@ -58,6 +58,11 @@ obj.test1.history(1.minute.ago)
 #optional with step as second argument. 
 #normally the step will be calculated by given range
 obj.test1.history(1.year.ago,:minute) 
+#if you want to have a summed up history. 
+#For example if every incrementation was a was a change of a total value and
+#you want to get the total amount at each point in time
+#ATTENTION: it starts at 0 !
+obj.test1.summed_up_history(1.year.ago)
 
 
 #returns the sum in the given range
@@ -71,6 +76,13 @@ obj.test1.sum(1.minute.ago..Time.now) #or obj.sum(1.minute.ago)
 ```ruby
 obj.test1.delete_keys
 obj.test1.expire_keys(10) #in seconds
+
+#definig a standard expiry in Class
+#standard is 2.years
+timed_rediscounter(:test2,periods: [:hour,:day],expires_in: 1.month)
+#if you want to disable the expiry then you have to pass false as argument
+timed_rediscounter(:test2,periods: [:hour,:day],expires_in: false)
+
 ```
 
 ## Development
