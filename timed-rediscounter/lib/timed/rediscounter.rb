@@ -74,8 +74,8 @@ module Timed
 
       def initialize(key,default_options={})
         @key = key
-        @periods = (default_options.delete(:periods) || Periods)
-        @redis = (default_options.delete(:redis) || Timed::Rediscounter.redis)
+        @periods = default_options.fetch(:periods,Periods)
+        @redis = default_options.fetch(:redis,Timed::Rediscounter.redis)
         raise_if_not_valid_periods(@periods)
         @default_options = default_options.to_h
         @expires_in = @default_options.fetch(:expires_in, 2.year.to_i)
